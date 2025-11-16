@@ -24,7 +24,11 @@ const mazeDesign = [
 
 var playerX = 10;
 var playerY = 10;
+var playerSize = 10;
+var offset = playerSize / 2;
 var playerSpeed = 2;
+var mouseX = 0;
+var mouseY = 0;
 
 function drawDivision(x, y, width, height, color) {
   maze.strokeStyle = "white";
@@ -36,6 +40,14 @@ function drawDivision(x, y, width, height, color) {
 function drawPlayer(x, y, width, height, color) {
   maze.fillStyle = color;
   maze.fillRect(x, y, width, height);
+}
+
+function drawLine(x1, y1, x2, y2, color) {
+  maze.strokeStyle = color;
+  maze.beginPath();
+  maze.moveTo(x1, y1);
+  maze.lineTo(x2, y2);
+  maze.stroke();
 }
 
 window.addEventListener("keydown", (event) => {
@@ -54,6 +66,11 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+window.addEventListener("mousemove", (event) => {
+  mouseX = event.clientX;
+  mouseY = event.clientY;
+});
+
 function animate() {
   requestAnimationFrame(animate);
   maze.clearRect(0, 0, display_maze.width, display_maze.height);
@@ -67,7 +84,8 @@ function animate() {
     }
   }
 
-  drawPlayer(playerX, playerY, 10, 10, "yellow");
+  drawPlayer(playerX, playerY, playerSize, playerSize, "yellow");
+  drawLine(playerX + offset, playerY + offset, mouseX, mouseY, "cyan");
 }
 
 animate();
