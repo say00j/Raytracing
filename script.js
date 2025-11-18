@@ -22,8 +22,10 @@ const maze = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
-var playerX = 10;
-var playerY = 10;
+var playerX = 80;
+var playerY = 80;
+let nextX = 0;
+let nextY = 0;
 var playerSize = 10;
 var offset = playerSize / 2;
 var playerSpeed = 2;
@@ -31,6 +33,8 @@ var mouseX = 0;
 var mouseY = 0;
 let dirY = 0;
 let dirX = 0;
+let col = 0;
+let row = 0;
 
 function drawDivision(x, y, width, height, color) {
   pen.strokeStyle = "white";
@@ -84,8 +88,26 @@ function drawMaze() {
 }
 
 function playerUpdate() {
-  playerX += dirX * playerSpeed;
-  playerY += dirY * playerSpeed;
+  nextX = playerX + dirX * playerSpeed;
+  nextY = playerY + dirY * playerSpeed;
+  let nextX1 = nextX + playerSize;
+  let nextY1 = nextY + playerSize;
+  if (collition(nextX, playerY) == 0 && collition(nextX1, playerY) == 0) {
+    playerX = nextX;
+  }
+  if (collition(playerX, nextY) == 0 && collition(playerX, nextY1) == 0) {
+    playerY = nextY;
+  }
+}
+
+function collition(x, y) {
+  col = Math.floor(x / cellSize);
+  row = Math.floor(y / cellSize);
+  if (maze[row][col] == 1) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 function animate() {
