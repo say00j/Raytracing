@@ -4,10 +4,10 @@ var divisionsPerSide = 10;
 var cellSize = scale / divisionsPerSide;
 
 var display = document.getElementById("display");
-display.width = scale;
-display.height = scale;
+var display3D = document.getElementById("display3d");
 
 var pen = display.getContext("2d");
+var pen2 = display3D.getContext("2d");
 
 const maze = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -40,6 +40,9 @@ let col = 0;
 let row = 0;
 
 let rays = [];
+let rayNum = 50;
+let FOV = Math.PI / 3; // 60 degrees
+let rayAngle = FOV / rayNum;
 
 function drawDivision(x, y, width, height, color) {
   pen.strokeStyle = "white";
@@ -123,7 +126,12 @@ class Ray {
     }
 
     drawLine(startX, startY, rayX, rayY, "cyan");
-    return distance(startX, startY, rayX, rayY);
+    return {
+      x: rayX, // hitX
+      y: rayY, // hitY
+      distance: distance(startX, startY, rayX, rayY),
+      angle: angle,
+    };
   }
 }
 
@@ -154,21 +162,40 @@ function collition(x, y) {
   }
 }
 
-for (let i = 0; i < 10; i++) {
-  rays.push(new Ray(i * 0.09));
+for (let i = 0; i < rayNum; i++) {
+  rays.push(new Ray(i * rayAngle));
 }
 
 function RayUpdate() {
   let count = 0;
   for (let ray of rays) {
-    console.log(count, ray.update());
+    let data = ray.update();
+    console.log(data);
+    let sliceWidth = display3D.width / rayNum;
+
+    let wallHeight = (cellSize * 300) / data.distance;
+
+    let x = count * sliceWidth;
+    let y = display3D.height / 2 - wallHeight / 2;
+
+    // pen2.fillStyle = "gray";
+    // pen2.fillRect(x, y, sliceWidth, wallHeight);
+    drawRect(x, y, sliceWidth, wallHeight, "green");
     count++;
   }
+}
+
+function drawRect(x, y, width, height, color) {
+  pen2.strokeStyle = "red";
+  pen2.fillStyle = color;
+  pen2.strokeRect(x, y, width, height);
+  pen2.fillRect(x, y, width, height);
 }
 
 function animate() {
   requestAnimationFrame(animate);
   pen.clearRect(0, 0, display.width, display.height);
+  pen2.clearRect(0, 0, display.width, display.height);
   drawMaze();
   drawPlayer(playerX, playerY, playerSize, playerSize, "yellow");
   RayUpdate();
