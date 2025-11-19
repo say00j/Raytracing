@@ -39,6 +39,8 @@ let dirX = 0;
 let col = 0;
 let row = 0;
 
+let rays = [];
+
 function drawDivision(x, y, width, height, color) {
   pen.strokeStyle = "white";
   pen.fillStyle = color;
@@ -90,25 +92,39 @@ function drawMaze() {
   }
 }
 
-function Ray() {
-  let dx = mouseX - (playerX + offset);
-  let dy = mouseY - (playerY + offset);
-
-  let len = Math.hypot(dx, dy);
-  dx /= len;
-  dy /= len;
-
-  let rayX = playerX + offset;
-  let rayY = playerY + offset;
-
-  for (let i = 0; i < 500; i++) {
-    rayX += dx * 2;
-    rayY += dy * 2;
-
-    if (collition(rayX, rayY)) break;
+class Ray {
+  constructor(offsetAngle) {
+    this.offsetAngle = offsetAngle;
   }
 
-  drawLine(playerX + offset, playerY + offset, rayX, rayY, "cyan");
+  update() {
+    // player center
+    let startX = playerX + offset;
+    let startY = playerY + offset;
+
+    // angle to mouse (in radians)
+    let angle = Math.atan2(mouseY - startY, mouseX - startX);
+
+    // apply offset to this ray
+    angle += this.offsetAngle;
+
+    // convert to direction vector
+    let dx = Math.cos(angle);
+    let dy = Math.sin(angle);
+
+    let rayX = startX;
+    let rayY = startY;
+
+    // march ray forward
+    for (let i = 0; i < 500; i++) {
+      rayX += dx * 2;
+      rayY += dy * 2;
+      if (collition(rayX, rayY)) break;
+    }
+
+    drawLine(startX, startY, rayX, rayY, "cyan");
+    return distance(startX, startY, rayX, rayY);
+  }
 }
 
 function distance(x1, y1, x2, y2) {
@@ -138,12 +154,24 @@ function collition(x, y) {
   }
 }
 
+for (let i = 0; i < 10; i++) {
+  rays.push(new Ray(i * 0.09));
+}
+
+function RayUpdate() {
+  let count = 0;
+  for (let ray of rays) {
+    console.log(count, ray.update());
+    count++;
+  }
+}
+
 function animate() {
   requestAnimationFrame(animate);
   pen.clearRect(0, 0, display.width, display.height);
   drawMaze();
   drawPlayer(playerX, playerY, playerSize, playerSize, "yellow");
-  Ray();
+  RayUpdate();
   drawLine(
     playerX + offset,
     playerY + offset + 50,
