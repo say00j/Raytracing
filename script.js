@@ -24,6 +24,9 @@ const maze = [
 
 var playerX = 80;
 var playerY = 80;
+let lineX = playerX;
+let lineY = playerY;
+let lineSpeed = 10;
 let nextX = 0;
 let nextY = 0;
 var playerSize = 10;
@@ -87,6 +90,31 @@ function drawMaze() {
   }
 }
 
+function Ray() {
+  let dx = mouseX - (playerX + offset);
+  let dy = mouseY - (playerY + offset);
+
+  let len = Math.hypot(dx, dy);
+  dx /= len;
+  dy /= len;
+
+  let rayX = playerX + offset;
+  let rayY = playerY + offset;
+
+  for (let i = 0; i < 500; i++) {
+    rayX += dx * 2;
+    rayY += dy * 2;
+
+    if (collition(rayX, rayY)) break;
+  }
+
+  drawLine(playerX + offset, playerY + offset, rayX, rayY, "cyan");
+}
+
+function distance(x1, y1, x2, y2) {
+  return Math.hypot(x2 - x1, y2 - y1);
+}
+
 function playerUpdate() {
   nextX = playerX + dirX * playerSpeed;
   nextY = playerY + dirY * playerSpeed;
@@ -115,7 +143,14 @@ function animate() {
   pen.clearRect(0, 0, display.width, display.height);
   drawMaze();
   drawPlayer(playerX, playerY, playerSize, playerSize, "yellow");
-  drawLine(playerX + offset, playerY + offset, mouseX, mouseY, "cyan");
+  Ray();
+  drawLine(
+    playerX + offset,
+    playerY + offset + 50,
+    playerX + offset,
+    playerY + offset - 50,
+    "red"
+  );
   playerUpdate();
 }
 
