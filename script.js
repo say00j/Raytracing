@@ -14,9 +14,9 @@ const maze = [
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
   [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
   [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-  [1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
-  [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-  [1, 0, 1, 1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 1, 1, 0, 0, 0, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 0, 0, 0, 1, 0, 1],
   [1, 0, 0, 1, 0, 0, 0, 1, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -40,7 +40,7 @@ let col = 0;
 let row = 0;
 
 let rays = [];
-let rayNum = 50;
+let rayNum = 500;
 let FOV = Math.PI / 3; // 60 degrees
 let rayAngle = FOV / rayNum;
 
@@ -168,25 +168,34 @@ for (let i = 0; i < rayNum; i++) {
 
 function RayUpdate() {
   let count = 0;
+  let sliceWidth = display3D.width / rayNum;
+
   for (let ray of rays) {
     let data = ray.update();
-    console.log(data);
-    let sliceWidth = display3D.width / rayNum;
 
-    let wallHeight = (cellSize * 300) / data.distance;
+    let dist = data.distance;
+    if (dist < 1) dist = 1;
 
+    let wallHeight = (cellSize * 300) / dist;
     let x = count * sliceWidth;
     let y = display3D.height / 2 - wallHeight / 2;
 
-    // pen2.fillStyle = "gray";
-    // pen2.fillRect(x, y, sliceWidth, wallHeight);
-    drawRect(x, y, sliceWidth, wallHeight, "green");
+    // SMOOTH FADE COLOR
+    let maxDist = 300; // fade limit
+    let d = Math.min(dist, maxDist);
+
+    let brightness = 1 - d / maxDist; // 1 → 0
+    let g = 255 * brightness; // 255 → 0
+
+    let color = `rgb(0, ${g}, 0)`; // green fade
+
+    drawRect(x, y, sliceWidth, wallHeight, color);
+
     count++;
   }
 }
 
-function drawRect(x, y, width, height, color) {
-  pen2.strokeStyle = "red";
+function drawRect(x, y, width, height, color = "#ffff") {
   pen2.fillStyle = color;
   pen2.strokeRect(x, y, width, height);
   pen2.fillRect(x, y, width, height);
@@ -198,6 +207,14 @@ function animate() {
   pen2.clearRect(0, 0, display.width, display.height);
   drawMaze();
   drawPlayer(playerX, playerY, playerSize, playerSize, "yellow");
+  drawRect(0, 0, display3D.width, display3D.height / 2, "#36b5ffff");
+  drawRect(
+    0,
+    display3D.height / 2,
+    display3D.width,
+    display3D.height / 2,
+    "#1f0d03ff"
+  );
   RayUpdate();
   drawLine(
     playerX + offset,
