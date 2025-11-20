@@ -38,6 +38,7 @@ let dirY = 0;
 let dirX = 0;
 let col = 0;
 let row = 0;
+let playerAngle = 0;
 
 let rays = [];
 let rayNum = 500;
@@ -106,7 +107,7 @@ class Ray {
     let startY = playerY + offset;
 
     // angle to mouse (in radians)
-    let angle = Math.atan2(mouseY - startY, mouseX - startX);
+    let angle = playerAngle;
 
     // apply offset to this ray
     angle += this.offsetAngle;
@@ -139,15 +140,51 @@ function distance(x1, y1, x2, y2) {
   return Math.hypot(x2 - x1, y2 - y1);
 }
 
+display3D.addEventListener("click", () => {
+  display3D.requestPointerLock();
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (document.pointerLockElement === display3D) {
+    playerAngle += e.movementX * 0.003; // mouse sensitivity
+    console.log(playerAngle);
+  }
+});
+
 function playerUpdate() {
-  nextX = playerX + dirX * playerSpeed;
-  nextY = playerY + dirY * playerSpeed;
-  let nextX1 = nextX + playerSize;
-  let nextY1 = nextY + playerSize;
-  if (collition(nextX, playerY) == 0 && collition(nextX1, playerY) == 0) {
+  let nextX = playerX;
+  let nextY = playerY;
+
+  // Forward
+  if (dirY === -1) {
+    nextX += Math.cos(playerAngle) * playerSpeed;
+    nextY += Math.sin(playerAngle) * playerSpeed;
+  }
+
+  // Backward
+  if (dirY === 1) {
+    nextX -= Math.cos(playerAngle) * playerSpeed;
+    nextY -= Math.sin(playerAngle) * playerSpeed;
+  }
+
+  // Strafe Left
+  if (dirX === -1) {
+    nextX += Math.cos(playerAngle - Math.PI / 2) * playerSpeed;
+    nextY += Math.sin(playerAngle - Math.PI / 2) * playerSpeed;
+  }
+
+  // Strafe Right
+  if (dirX === 1) {
+    nextX += Math.cos(playerAngle + Math.PI / 2) * playerSpeed;
+    nextY += Math.sin(playerAngle + Math.PI / 2) * playerSpeed;
+  }
+
+  // Collision
+
+  if (!collition(nextX, playerY)) {
     playerX = nextX;
   }
-  if (collition(playerX, nextY) == 0 && collition(playerX, nextY1) == 0) {
+  if (!collition(playerX, nextY)) {
     playerY = nextY;
   }
 }
@@ -174,6 +211,8 @@ function RayUpdate() {
     let data = ray.update();
 
     let dist = data.distance;
+    // remove fisheye
+
     if (dist < 1) dist = 1;
 
     let wallHeight = (cellSize * 300) / dist;
