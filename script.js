@@ -157,26 +157,26 @@ function playerUpdate() {
 
   // Forward
   if (dirY === -1) {
-    nextX += Math.cos(playerAngle) * playerSpeed;
-    nextY += Math.sin(playerAngle) * playerSpeed;
+    nextX += Math.cos(playerAngle + FOV / 2) * playerSpeed;
+    nextY += Math.sin(playerAngle + FOV / 2) * playerSpeed;
   }
 
   // Backward
   if (dirY === 1) {
-    nextX -= Math.cos(playerAngle) * playerSpeed;
-    nextY -= Math.sin(playerAngle) * playerSpeed;
+    nextX -= Math.cos(playerAngle + FOV / 2) * playerSpeed;
+    nextY -= Math.sin(playerAngle + FOV / 2) * playerSpeed;
   }
 
   // Strafe Left
   if (dirX === -1) {
-    nextX += Math.cos(playerAngle - Math.PI / 2) * playerSpeed;
-    nextY += Math.sin(playerAngle - Math.PI / 2) * playerSpeed;
+    nextX += Math.cos(playerAngle + FOV / 2 - Math.PI / 2) * playerSpeed;
+    nextY += Math.sin(playerAngle + FOV / 2 - Math.PI / 2) * playerSpeed;
   }
 
   // Strafe Right
   if (dirX === 1) {
-    nextX += Math.cos(playerAngle + Math.PI / 2) * playerSpeed;
-    nextY += Math.sin(playerAngle + Math.PI / 2) * playerSpeed;
+    nextX += Math.cos(playerAngle + FOV / 2 + Math.PI / 2) * playerSpeed;
+    nextY += Math.sin(playerAngle + FOV / 2 + Math.PI / 2) * playerSpeed;
   }
 
   // Collision
